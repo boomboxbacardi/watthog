@@ -61,11 +61,32 @@ sessions (model + timestamp per prompt, the only trace of the free
 (per model, last 12 months, covers other machines and pruned local history).
 Where the two overlap, whichever counted more requests for that month and
 model wins. The billing half needs a GitHub token with the **Plan: read**
-permission: create a fine-grained PAT at
-github.com/settings/personal-access-tokens and export it as
-`WATTHOG_GITHUB_TOKEN` (a `gh` CLI login with that scope works too). It
-talks only to api.github.com about your own account and caches the result
-for an hour; without a token the local sessions still count.
+permission. The easy way is:
+
+```sh
+watthog connect copilot
+```
+
+which opens the token page, tells you exactly which permission to flip,
+validates what you paste, and saves it to `~/.config/watthog/config.json` so
+you set it once — not per shell. (`WATTHOG_GITHUB_TOKEN` and a `gh` CLI login
+with that scope are still picked up automatically if you have them.) It talks
+only to api.github.com about your own account and caches the result for an
+hour; without a token the local sessions still count.
+
+Not sure what's wired up? `watthog doctor` lists every source and what each
+still needs.
+
+## Commands
+
+```
+watthog                  Scan local logs and print the energy report
+watthog connect copilot  Connect GitHub Copilot's premium-request billing
+watthog doctor           Show which sources are detected and what they need
+```
+
+The report opens with a **SOURCES** panel — a quick check of which agents were
+found, how many messages each contributed, and any that need a nudge.
 
 ## Options
 

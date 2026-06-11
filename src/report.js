@@ -24,6 +24,9 @@ const cyan = c(36);
 const pink = c("38;5;218");
 const amber = c("38;5;214");
 
+// Shared with the setup/doctor commands so their output matches the report.
+export const ui = { bold, dim, yellow, green, cyan, pink, amber };
+
 export function aggregate(records, { days, gridGCo2PerKwh } = {}) {
   const cutoff = days ? Date.now() - days * 86400_000 : null;
   const byModel = new Map();
@@ -211,7 +214,7 @@ function facts(agg) {
   return out[seed % out.length];
 }
 
-export function render(agg) {
+export function render(agg, { sources } = {}) {
   const lines = [];
   const p = (s = "") => lines.push(s);
 
@@ -220,12 +223,17 @@ export function render(agg) {
   const since = agg.since ? agg.since.toISOString().slice(0, 10) : "?";
   p(
     dim(
-      `${agg.messages.toLocaleString("en-US")} assistant messages since ${since} · sources: ${agg.sources.join(", ") || "none found"}`
+      `${agg.messages.toLocaleString("en-US")} assistant messages since ${since}`
     )
   );
   p();
   for (const l of hogBlock(agg)) p(l);
   p();
+
+  if (sources?.length) {
+    for (const l of sourcesBlock(sources)) p(l);
+    p();
+  }
 
   const t = agg.totalWh;
   p(bold("TOTAL ESTIMATE"));
@@ -281,6 +289,22 @@ export function render(agg) {
   );
   p();
   return lines.join("\n");
+}
+
+// The "what did we read from" panel. Each row is { name, state, detail, hint }
+// where state is "ok" (counted), "empty" (installed, nothing to count) or
+// "absent" (not installed). Shared by the report and `watthog doctor`.
+export function sourcesBlock(sources) {
+  const lines = [bold("SOURCES")];
+  const width = Math.max(...sources.map((s) => s.name.length));
+  for (const s of sources) {
+    const icon =
+      s.state === "ok" ? green("✓") : s.state === "empty" ? amber("○") : dim("·");
+    const label = (s.state === "absent" ? dim : (x) => x)(s.name.padEnd(width));
+    lines.push(`  ${icon} ${label}   ${dim(s.detail)}`);
+    if (s.hint) lines.push(`  ${" ".repeat(width + 3)}  ${amber("→ " + s.hint)}`);
+  }
+  return lines;
 }
 
 // The chosen equivalence first, then up to two smaller units for texture.
