@@ -27,6 +27,7 @@ TOTAL ESTIMATE
 | Claude Code | `~/.claude/projects/**/*.jsonl` |
 | OpenCode | `~/.local/share/opencode/opencode.db` (and legacy `storage/message/`) |
 | Codex CLI | `~/.codex/sessions/**/rollout-*.jsonl` |
+| Cursor | `…/Cursor/User/globalStorage/state.vscdb` (per-message token counts; model comes from each conversation's settings, Auto mode is estimated as a mid-size model; cache hits aren't exposed locally) |
 
 ## Options
 

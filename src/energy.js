@@ -33,7 +33,7 @@ export const DEFAULT_GRID_GCO2_PER_KWH = 400; // global average grid intensity
 export const WATER_ML_PER_WH = 1.1; // Google: 0.26 ml / 0.24 Wh per prompt
 
 const SMALL_RE =
-  /haiku|mini|nano|flash|lite|small|tiny|\b[1-9]b\b|gemma|phi-|smol/;
+  /haiku|\bmini\b|nano|flash|lite|small|tiny|\b[1-9]b\b|gemma|phi-|smol/;
 const LARGE_RE =
   /opus|fable|mythos|gpt-5|gpt-4\.5|\bo[134](-pro)?\b|grok-[34]|ultra|qwen[^a-z]*max/;
 
