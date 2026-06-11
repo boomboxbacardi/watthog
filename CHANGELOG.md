@@ -1,3 +1,11 @@
+## [0.0.4](https://github.com/boomboxbacardi/watthog/compare/v0.0.3...v0.0.4) (2026-06-11)
+
+
+### Bug Fixes
+
+* **sources:** fetch Cursor usage from its dashboard API ([197177d](https://github.com/boomboxbacardi/watthog/commit/197177db1221cc91a6d77ea88013840383bf10a6))
+* **sources:** warn on Cursor API fallback and merge early local history ([a12ed10](https://github.com/boomboxbacardi/watthog/commit/a12ed10b8642d9db5bb94cd74234d671d481b923))
+
 ## [0.0.3](https://github.com/boomboxbacardi/watthog/compare/v0.0.2...v0.0.3) (2026-06-11)
 
 
