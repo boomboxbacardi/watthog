@@ -16,7 +16,7 @@ const STEPS = [
   {
     icon: TerminalIcon,
     title: "Run it",
-    body: "npx watthog scans Claude Code, OpenCode, Codex and Cursor logs already on your disk.",
+    body: "npx watthog scans Claude Code, OpenCode, Codex, Cursor and Copilot logs already on your disk.",
   },
   {
     icon: ChartBarIcon,
