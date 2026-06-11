@@ -60,19 +60,22 @@ sessions (model + timestamp per prompt, the only trace of the free
 "included" models), and GitHub's billing API for your premium-request usage
 (per model, last 12 months, covers other machines and pruned local history).
 Where the two overlap, whichever counted more requests for that month and
-model wins. The billing half needs a GitHub token with the **Plan: read**
-permission. The easy way is:
+model wins. The billing half needs your permission to read your plan. Connect
+it once with:
 
 ```sh
 watthog connect copilot
 ```
 
-which opens the token page, tells you exactly which permission to flip,
-validates what you paste, and saves it to `~/.config/watthog/config.json` so
-you set it once — not per shell. (`WATTHOG_GITHUB_TOKEN` and a `gh` CLI login
-with that scope are still picked up automatically if you have them.) It talks
-only to api.github.com about your own account and caches the result for an
-hour; without a token the local sessions still count.
+This runs GitHub's device flow: it shows you a short code, you click
+**Authorize** on github.com, done — no token to create or copy. The resulting
+access token (scoped to nothing but reading your plan) is saved to
+`~/.config/watthog/config.json` so you set it once, not per shell. If you'd
+rather use a token you control, the command falls back to a fine-grained PAT
+with the **Plan: read** permission; `WATTHOG_GITHUB_TOKEN` and a `gh` CLI
+login with that scope are picked up automatically too. It talks only to
+GitHub about your own account and caches the result for an hour; without any
+of these the local sessions still count.
 
 Not sure what's wired up? `watthog doctor` lists every source and what each
 still needs.
