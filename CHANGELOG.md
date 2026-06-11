@@ -1,3 +1,10 @@
+# [0.1.0](https://github.com/boomboxbacardi/watthog/compare/v0.0.4...v0.1.0) (2026-06-11)
+
+
+### Features
+
+* **sources:** add GitHub Copilot via GitHub's premium-request billing report ([da4ec50](https://github.com/boomboxbacardi/watthog/commit/da4ec503412002b75e3c5331742241ca634b1e93))
+
 ## [0.0.4](https://github.com/boomboxbacardi/watthog/compare/v0.0.3...v0.0.4) (2026-06-11)
 
 
