@@ -1,1 +1,43 @@
+# --- Dependencies ---
 node_modules/
+.pnp
+.pnp.*
+
+# --- Env files ---
+.env
+.env.*
+.env.local
+
+# --- Build output ---
+dist/
+build/
+out/
+
+# --- Coverage / test ---
+coverage/
+.vite/
+
+# --- TypeScript ---
+*.tsbuildinfo
+next-env.d.ts
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+
+# --- IDE ---
+.vscode/settings.json
+.idea/
+
+# --- Logs ---
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# --- Temp ---
+*.swp
+*.swo
+*~
+.tmp
+.temp

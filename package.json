@@ -1,6 +1,6 @@
 {
   "name": "watthog",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "description": "Estimate the electricity, CO2 and water footprint of your LLM usage across coding agents (Claude Code, OpenCode, Codex CLI)",
   "type": "module",
   "bin": {
@@ -17,5 +17,59 @@
     "claude-code",
     "tokens"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@commitlint/cli": "^21.0.2",
+    "@commitlint/config-conventional": "^21.0.2",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^11.0.1",
+    "@semantic-release/npm": "^12.0.1",
+    "husky": "^9.1.7",
+    "semantic-release": "^24.2.3"
+  },
+  "scripts": {
+    "prepare": "husky"
+  },
+  "release": {
+    "branches": [
+      "main"
+    ],
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      [
+        "@semantic-release/changelog",
+        {
+          "changelogFile": "CHANGELOG.md"
+        }
+      ],
+      [
+        "@semantic-release/npm",
+        {
+          "npmPublish": true
+        }
+      ],
+      [
+        "@semantic-release/git",
+        {
+          "assets": [
+            "CHANGELOG.md",
+            "package.json",
+            "package-lock.json"
+          ],
+          "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+        }
+      ],
+      "@semantic-release/github"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/boomboxbacardi/watthog.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
 }
+
