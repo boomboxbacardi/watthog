@@ -1,6 +1,6 @@
 {
   "name": "watthog",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Estimate the electricity, CO2 and water footprint of your LLM usage across coding agents (Claude Code, OpenCode, Codex CLI)",
   "type": "module",
   "bin": {
@@ -72,4 +72,3 @@
     "access": "public"
   }
 }
-
