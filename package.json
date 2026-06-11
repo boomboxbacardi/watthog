@@ -7,7 +7,7 @@
     "watthog": "./src/cli.js"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "keywords": [
     "llm",
