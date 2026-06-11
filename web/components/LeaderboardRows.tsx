@@ -1,3 +1,6 @@
+"use client";
+
+import { motion, useReducedMotion } from "motion/react";
 import { Hog } from "./Hog";
 import { fmtEquivalent } from "@/lib/equivalence";
 import { stageOf, type Hogger } from "@/lib/mock";
@@ -12,6 +15,7 @@ export function LeaderboardRows({
   hoggers: Hogger[];
   metric: "week" | "all";
 }) {
+  const reduce = useReducedMotion();
   const sorted = [...hoggers].sort((a, b) =>
     metric === "week" ? b.kWhWeek - a.kWhWeek : b.kWhAllTime - a.kWhAllTime
   );
@@ -22,15 +26,28 @@ export function LeaderboardRows({
         const stage = stageOf(h);
         const kWh = metric === "week" ? h.kWhWeek : h.kWhAllTime;
         return (
-          <li
+          <motion.li
             key={h.handle}
-            className="flex items-center gap-4 rounded-3xl border-2 border-line bg-surface px-4 py-3 sm:gap-6 sm:px-6"
+            initial={reduce ? false : { opacity: 0, y: 18 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.4 }}
+            transition={{
+              type: "spring",
+              stiffness: 140,
+              damping: 18,
+              delay: i * 0.06,
+            }}
+            className={`flex items-center gap-4 rounded-3xl border-2 px-4 py-3 sm:gap-6 sm:px-6 ${
+              i === 0
+                ? "border-accent/40 bg-accent-soft/60"
+                : "border-line bg-surface"
+            }`}
           >
             <span className="w-6 shrink-0 font-mono text-sm text-ink-muted">
               {i + 1}
             </span>
             <span className="flex w-24 shrink-0 justify-center">
-              <Hog stage={stage.stage} size={AVATAR_SIZE[stage.stage]} />
+              <Hog stage={stage.stage} size={AVATAR_SIZE[stage.stage]} className="text-ink" />
             </span>
             <span className="min-w-0 flex-1">
               <span className="block truncate font-semibold">@{h.handle}</span>
@@ -57,7 +74,7 @@ export function LeaderboardRows({
                 ≈ {fmtEquivalent(kWh * 1000)}
               </span>
             </span>
-          </li>
+          </motion.li>
         );
       })}
     </ol>

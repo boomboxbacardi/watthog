@@ -1,14 +1,18 @@
 "use client";
 
-// The hero teaching tool: drag a token count, watch the hog and the
-// real-world equivalence respond. Uses the medium model class factor
-// (0.19 Wh per 1k output tokens, see watthog CLI methodology).
+// The hero teaching tool: drag a token count, watch the hog inflate with
+// spring physics and the real-world equivalence respond. The pig chews while
+// you feed it. Uses the medium model class factor (0.19 Wh per 1k output
+// tokens, see watthog CLI methodology).
 
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { Hog } from "./Hog";
-import { fmtEquivalent, fmtWh, type Stage } from "@/lib/equivalence";
+import { fmtEquivalent, fmtWh, STAGES, type Stage } from "@/lib/equivalence";
 
 const WH_PER_1K_OUTPUT = 0.19;
+const EXP_MIN = 2;
+const EXP_MAX = 8;
 
 const MARKS: { at: number; label: string }[] = [
   { at: 2.7, label: "one prompt" },
@@ -25,14 +29,26 @@ function fmtTokens(n: number): string {
 
 export function EnergySlider() {
   const [exp, setExp] = useState(4.7);
+  const [chewing, setChewing] = useState(false);
+  const chewTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
   const tokens = Math.round(10 ** exp);
   const wh = (tokens / 1000) * WH_PER_1K_OUTPUT;
-  // map the slider range onto hog stages so the pig visibly fattens
-  const stage = (Math.min(5, Math.max(1, Math.ceil((exp - 2) / 1.2))) ||
-    1) as Stage;
+  const t = (exp - EXP_MIN) / (EXP_MAX - EXP_MIN);
+  // the pig inflates continuously; stages name the milestones
+  const scale = 0.55 + t * 0.85;
+  const stage = Math.min(5, Math.max(1, Math.ceil((exp - 2) / 1.2)) || 1) as Stage;
+  const stageName = STAGES[stage - 1].name;
   const nearest = MARKS.reduce((a, b) =>
     Math.abs(b.at - exp) < Math.abs(a.at - exp) ? b : a
   );
+
+  function onSlide(value: number) {
+    setExp(value);
+    setChewing(true);
+    clearTimeout(chewTimer.current);
+    chewTimer.current = setTimeout(() => setChewing(false), 320);
+  }
 
   return (
     <div className="grid items-center gap-10 rounded-3xl border-2 border-line bg-surface-2/50 p-8 sm:p-12 md:grid-cols-2">
@@ -46,12 +62,15 @@ export function EnergySlider() {
 
         <input
           type="range"
-          min={2}
-          max={8}
+          min={EXP_MIN}
+          max={EXP_MAX}
           step={0.01}
           value={exp}
-          onChange={(e) => setExp(Number(e.target.value))}
-          className="mt-8 w-full"
+          onChange={(e) => onSlide(Number(e.target.value))}
+          className="hog-range mt-8"
+          style={{
+            background: `linear-gradient(to right, var(--volt) ${t * 100}%, var(--line) ${t * 100}%)`,
+          }}
           aria-label="Number of generated tokens"
         />
         <div className="mt-2 flex justify-between font-mono text-xs text-ink-muted">
@@ -76,8 +95,28 @@ export function EnergySlider() {
       </div>
 
       <div className="flex flex-col items-center text-center">
-        <Hog stage={stage} size={260} />
-        <p className="mt-4 font-display text-2xl font-bold">
+        <div className="flex h-[240px] items-end justify-center sm:h-[280px]">
+          <motion.div
+            animate={{ scale }}
+            transition={{ type: "spring", stiffness: 150, damping: 15 }}
+            style={{ transformOrigin: "50% 90%" }}
+          >
+            <Hog stage={3} size={250} eating={chewing} className="text-ink" />
+          </motion.div>
+        </div>
+        <AnimatePresence mode="popLayout" initial={false}>
+          <motion.span
+            key={stageName}
+            initial={{ scale: 0.5, opacity: 0, y: 8 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.7, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 18 }}
+            className="mt-2 rounded-full bg-accent-soft px-4 py-1 font-display text-sm font-bold text-accent"
+          >
+            {stageName}
+          </motion.span>
+        </AnimatePresence>
+        <p className="mt-3 font-display text-2xl font-bold">
           ≈ {fmtEquivalent(wh)}
         </p>
         <p className="mt-1 text-sm text-ink-muted">

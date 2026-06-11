@@ -5,8 +5,10 @@ export function Nav() {
   return (
     <header className="sticky top-0 z-40 border-b-2 border-line bg-surface/90 backdrop-blur">
       <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-        <Link href="/" className="flex items-center gap-2">
-          <HogMark size={34} />
+        <Link href="/" className="group flex items-center gap-2">
+          <span className="inline-block transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110 motion-reduce:transform-none">
+            <HogMark size={34} />
+          </span>
           <span className="font-display text-xl font-bold tracking-tight">
             watthog
           </span>

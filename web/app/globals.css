@@ -12,6 +12,7 @@
   --pig-dark: #e87fa6;
   --volt: #e09b07;
   --volt-soft: #fdf0d2;
+  --outline: #2b2126;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -27,6 +28,7 @@
     --pig-dark: #d4628c;
     --volt: #f5b82e;
     --volt-soft: #38300f;
+    --outline: #2b2126;
   }
 }
 
@@ -53,6 +55,86 @@ body {
   font-family: var(--font-outfit), sans-serif;
 }
 
-input[type="range"] {
-  accent-color: var(--accent);
+::selection {
+  background: var(--accent-soft);
+}
+
+/* The teaching slider: amber fill = electricity already eaten. */
+input[type="range"].hog-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--line);
+  outline-offset: 4px;
+}
+input[type="range"].hog-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 4px solid var(--surface);
+  box-shadow: 0 0 0 2px var(--accent);
+  cursor: grab;
+}
+input[type="range"].hog-range:active::-webkit-slider-thumb {
+  cursor: grabbing;
+}
+input[type="range"].hog-range::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 4px solid var(--surface);
+  box-shadow: 0 0 0 2px var(--accent);
+  cursor: grab;
+}
+
+/* Hero load-in cascade. CSS-only so the hero stays a Server Component. */
+@media (prefers-reduced-motion: no-preference) {
+  .rise {
+    opacity: 0;
+    animation: rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  .rise-1 { animation-delay: 0.05s; }
+  .rise-2 { animation-delay: 0.15s; }
+  .rise-3 { animation-delay: 0.25s; }
+  .rise-4 { animation-delay: 0.2s; }
+
+  /* The footer piglet dreams. */
+  .zz {
+    opacity: 0;
+    animation: floatz 3s ease-in-out infinite;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .zz { opacity: 0.5; }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes floatz {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.8);
+  }
+  25% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(12px, -26px) scale(1.15);
+  }
 }
