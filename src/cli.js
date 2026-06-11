@@ -12,15 +12,16 @@ import * as claudeCode from "./sources/claude-code.js";
 import * as opencode from "./sources/opencode.js";
 import * as codex from "./sources/codex.js";
 import * as cursor from "./sources/cursor.js";
+import * as copilot from "./sources/copilot.js";
 import { aggregate, render } from "./report.js";
 import { DEFAULT_GRID_GCO2_PER_KWH, stageFor } from "./energy.js";
 
-const SOURCES = [claudeCode, opencode, codex, cursor];
+const SOURCES = [claudeCode, opencode, codex, cursor, copilot];
 
 const HELP = `watthog — estimate the electricity footprint of your LLM usage
 
 Scans local logs from AI coding agents (Claude Code, OpenCode, Codex CLI,
-Cursor),
+Cursor, GitHub Copilot),
 counts tokens per model and converts them to estimated energy, CO2e and water.
 
 Usage: watthog [options]

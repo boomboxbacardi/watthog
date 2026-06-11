@@ -44,6 +44,7 @@ Watthog fixes that. One command, local logs, honest estimates with ranges.
 | OpenCode | `~/.local/share/opencode/opencode.db` (and legacy `storage/message/`) |
 | Codex CLI | `~/.codex/sessions/**/rollout-*.jsonl` |
 | Cursor | Your own usage export from Cursor's dashboard API¹ (local fallback: `…/Cursor/User/globalStorage/state.vscdb`) |
+| GitHub Copilot (VS Code) | Your own premium-request report from GitHub's billing API² |
 
 ¹ Cursor stopped storing token counts locally in early 2026, so watthog fetches
 your usage export from cursor.com instead, authenticated with the session token
@@ -51,6 +52,16 @@ Cursor itself keeps on your machine. It talks only to your own Cursor account
 and caches the result for an hour. Auto-mode requests hide the model and are
 estimated as mid-size. When offline or signed out it falls back to the local
 database, which covers usage up to ~Jan 2026.
+
+² Copilot keeps no token counts on your machine at all, so watthog asks
+GitHub's billing API for your premium-request usage (per model, last 12
+months) and estimates tokens from request counts — clearly rougher than the
+token-accurate sources, and usage of the free "included" models is invisible
+to billing entirely. Needs a GitHub token with the **Plan: read** permission:
+create a fine-grained PAT at github.com/settings/personal-access-tokens and
+export it as `WATTHOG_GITHUB_TOKEN` (a `gh` CLI login with that scope works
+too). It talks only to api.github.com about your own account and caches the
+result for an hour.
 
 ## Options
 
