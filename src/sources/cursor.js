@@ -45,8 +45,25 @@ export function available(home = os.homedir()) {
 
 export async function collect(home = os.homedir()) {
   const fromApi = await collectFromApi(home);
-  if (fromApi) return fromApi;
-  return collectFromLocalDb(home);
+  if (!fromApi) {
+    console.error(
+      "watthog: Cursor stopped storing token counts locally in early 2026 and\n" +
+        "your usage couldn't be fetched from cursor.com (offline, or signed out\n" +
+        "of Cursor?) — recent Cursor usage may be missing from the totals."
+    );
+    return collectFromLocalDb(home);
+  }
+  // The export only carries token counts from ~May 2025 (the request-based
+  // billing era before that reports zeros), while the local DB has real
+  // counts up to then — so the local scan fills in the early history.
+  const apiStart = Math.min(
+    ...fromApi.map((r) => r.ts ?? Infinity),
+    Date.now()
+  );
+  const early = collectFromLocalDb(home).filter(
+    (r) => r.ts && r.ts < apiStart
+  );
+  return fromApi.concat(early);
 }
 
 // --- Primary path: Cursor's usage-event export -----------------------------
@@ -204,8 +221,11 @@ function extract(file) {
     const composer = composers.get(b.composerId);
     let model = composer?.model;
     if (!model || model === "default") model = AUTO_MODEL;
-    const rawTs = b.ts ?? composer?.createdAt ?? null;
-    const ts = typeof rawTs === "string" ? Date.parse(rawTs) || null : rawTs;
+    // Legacy timingInfo sometimes holds small relative values rather than an
+    // epoch; anything before ~2001 (1e12 ms) is junk — use the conversation's
+    // createdAt instead, or drop the timestamp.
+    const ts =
+      normalizeTs(b.ts) ?? normalizeTs(composer?.createdAt) ?? null;
     records.push({
       source: name,
       model,
@@ -217,6 +237,11 @@ function extract(file) {
     });
   }
   return records;
+}
+
+function normalizeTs(raw) {
+  const ts = typeof raw === "string" ? Date.parse(raw) : raw;
+  return ts >= 1e12 ? ts : null;
 }
 
 // --- Shared plumbing ---------------------------------------------------------
