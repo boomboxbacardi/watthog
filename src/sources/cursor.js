@@ -54,6 +54,20 @@ const COMPOSER_QUERY = `
 
 export async function collect(home = os.homedir()) {
   const file = dbPath(home);
+
+  // Scanning a multi-GB DB takes seconds, so results are cached and reused
+  // until the DB file changes (mtime+size).
+  const stat = fs.statSync(file);
+  const cacheKey = `${stat.mtimeMs}:${stat.size}`;
+  const cached = readCache(home, cacheKey);
+  if (cached) return cached;
+
+  const records = extract(file);
+  writeCache(home, cacheKey, records);
+  return records;
+}
+
+function extract(file) {
   const bubbles = readDb(file, BUBBLE_QUERY);
   if (!bubbles.length) return [];
 
@@ -80,6 +94,36 @@ export async function collect(home = os.homedir()) {
     });
   }
   return records;
+}
+
+function cachePath(home) {
+  const root =
+    process.env.XDG_CACHE_HOME ||
+    (process.platform === "darwin"
+      ? path.join(home, "Library", "Caches")
+      : path.join(home, ".cache"));
+  return path.join(root, "watthog", "cursor.json");
+}
+
+function readCache(home, key) {
+  try {
+    const { key: k, records } = JSON.parse(
+      fs.readFileSync(cachePath(home), "utf8")
+    );
+    return k === key && Array.isArray(records) ? records : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeCache(home, key, records) {
+  try {
+    const file = cachePath(home);
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(file, JSON.stringify({ key, records }));
+  } catch {
+    // cache is best-effort; the scan still worked
+  }
 }
 
 function readDb(file, query) {
