@@ -52,9 +52,10 @@ export function aggregate(records, { days, gridGCo2PerKwh } = {}) {
 
     let m = byModel.get(r.model);
     if (!m) {
-      m = { model: r.model, input: 0, output: 0, cache: 0, wh: 0, n: 0 };
+      m = { model: r.model, input: 0, output: 0, cache: 0, wh: 0, n: 0, sources: new Set() };
       byModel.set(r.model, m);
     }
+    m.sources.add(r.source);
     m.input += r.input;
     m.output += r.output;
     m.cache += r.cacheRead + r.cacheWrite;
@@ -82,7 +83,9 @@ export function aggregate(records, { days, gridGCo2PerKwh } = {}) {
     messages: count,
     since: firstTs === Infinity ? null : new Date(firstTs),
     sources: [...sources],
-    models: [...byModel.values()].sort((a, b) => b.wh - a.wh),
+    models: [...byModel.values()]
+      .map((m) => ({ ...m, sources: [...m.sources].sort() }))
+      .sort((a, b) => b.wh - a.wh),
     days: [...byDay.entries()].sort(),
     whPerDay7: weekWh / 7,
     cacheSavedWh,
@@ -241,6 +244,7 @@ export function render(agg) {
     p(bold("BY MODEL"));
     const rows = agg.models.map((m) => [
       m.model,
+      m.sources.join(", "),
       classLabel(classify(m.model)),
       fmtNum(m.input + m.cache),
       fmtNum(m.output),
@@ -249,7 +253,7 @@ export function render(agg) {
     ]);
     p(
       table(
-        ["model", "class", "in+cache tok", "out tok", "energy", ""],
+        ["model", "source", "class", "in+cache tok", "out tok", "energy", ""],
         rows
       )
     );
@@ -306,7 +310,7 @@ function table(header, rows) {
     "  " +
     r
       .map((cell, i) =>
-        i <= 1
+        i <= 2
           ? String(cell).padEnd(widths[i])
           : String(cell).padStart(widths[i])
       )
