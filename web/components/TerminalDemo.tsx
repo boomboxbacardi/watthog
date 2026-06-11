@@ -15,7 +15,7 @@ const LINES: Line[] = [
   { text: "$ npx watthog", tone: "cmd" },
   { text: "" },
   { text: "🐷 watthog · estimated electricity use of your LLMs", tone: "bold" },
-  { text: "9,419 assistant messages · Claude Code, OpenCode", tone: "dim" },
+  { text: "9,419 assistant messages · Claude Code, OpenCode, Cursor", tone: "dim" },
   { text: "" },
   { text: "TOTAL ESTIMATE", tone: "bold" },
   { text: "  Energy  11 kWh    range 4.0 - 32 kWh" },
