@@ -30,7 +30,7 @@ jobs:
 
       - run: npm ci --ignore-scripts
 
-      - run: npx semantic-release --first-release
+      - run: npx semantic-release 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
