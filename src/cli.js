@@ -12,7 +12,7 @@ import * as claudeCode from "./sources/claude-code.js";
 import * as opencode from "./sources/opencode.js";
 import * as codex from "./sources/codex.js";
 import { aggregate, render } from "./report.js";
-import { DEFAULT_GRID_GCO2_PER_KWH } from "./energy.js";
+import { DEFAULT_GRID_GCO2_PER_KWH, stageFor } from "./energy.js";
 
 const SOURCES = [claudeCode, opencode, codex];
 
@@ -84,6 +84,8 @@ async function main() {
           messages: agg.messages,
           since: agg.since,
           energyWh: agg.totalWh,
+          whPerDay7: agg.whPerDay7,
+          stage: stageFor(agg.whPerDay7),
           co2Grams: agg.co2g,
           gridGCo2PerKwh,
           waterMl: agg.waterMl,

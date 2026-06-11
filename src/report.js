@@ -7,7 +7,11 @@ import {
   withRange,
   co2Grams,
   waterMl,
-  EQUIVALENTS,
+  cacheSavingsWh,
+  pickEquivalent,
+  stageFor,
+  LADDER,
+  STAGES,
 } from "./energy.js";
 
 const tty = process.stdout.isTTY;
@@ -17,12 +21,16 @@ const dim = c(2);
 const yellow = c(33);
 const green = c(32);
 const cyan = c(36);
+const pink = c("38;5;218");
+const amber = c("38;5;214");
 
 export function aggregate(records, { days, gridGCo2PerKwh } = {}) {
   const cutoff = days ? Date.now() - days * 86400_000 : null;
   const byModel = new Map();
   const byDay = new Map();
   let totalWh = 0;
+  let cacheSavedWh = 0;
+  let outputWh = 0;
   let count = 0;
   let firstTs = Infinity;
   const sources = new Set();
@@ -31,6 +39,13 @@ export function aggregate(records, { days, gridGCo2PerKwh } = {}) {
     if (cutoff && (!r.ts || r.ts < cutoff)) continue;
     const wh = energyWh(r.model, r);
     totalWh += wh;
+    outputWh += energyWh(r.model, {
+      input: 0,
+      output: r.output,
+      cacheRead: 0,
+      cacheWrite: 0,
+    });
+    cacheSavedWh += cacheSavingsWh(r.model, r.cacheRead);
     count++;
     sources.add(r.source);
     if (r.ts && r.ts < firstTs) firstTs = r.ts;
@@ -52,6 +67,13 @@ export function aggregate(records, { days, gridGCo2PerKwh } = {}) {
     }
   }
 
+  // Rolling 7-day average drives the hog's growth stage.
+  const weekCutoff = Date.now() - 7 * 86400_000;
+  let weekWh = 0;
+  for (const [day, wh] of byDay) {
+    if (new Date(day + "T12:00:00Z").getTime() >= weekCutoff) weekWh += wh;
+  }
+
   return {
     totalWh: withRange(totalWh),
     co2g: co2Grams(totalWh, gridGCo2PerKwh),
@@ -62,7 +84,128 @@ export function aggregate(records, { days, gridGCo2PerKwh } = {}) {
     sources: [...sources],
     models: [...byModel.values()].sort((a, b) => b.wh - a.wh),
     days: [...byDay.entries()].sort(),
+    whPerDay7: weekWh / 7,
+    cacheSavedWh,
+    outputWh,
   };
+}
+
+// One ASCII hog per growth stage. Same pig, more of it.
+const HOGS = {
+  1: [
+    "  ^..^",
+    " (o  o)~",
+    '  "  "',
+  ],
+  2: [
+    "  ^..^____",
+    " (o  o    )~",
+    '  "  "  " "',
+  ],
+  3: [
+    "  ^..^_________",
+    " ( o  o        )",
+    " (             )~",
+    '  "  "      " "',
+  ],
+  4: [
+    "  ^..^______________",
+    " ( o  o             )",
+    " (                  )",
+    " (                  )~",
+    '  "  "          " "',
+  ],
+  5: [
+    "        ^..^________________",
+    "  \\   ( o  o                )",
+    " --+--(                     )",
+    "  /   (                     )",
+    "      (                     )~",
+    '       "  "             " "',
+  ],
+};
+
+function hogBlock(agg) {
+  const stage = stageFor(agg.whPerDay7);
+  const art = HOGS[stage.stage].map((l) => pink(l));
+  const next = STAGES.find((s) => s.stage === stage.stage + 1);
+  const info = [
+    bold(pink(stage.name.toUpperCase())) + dim(` · stage ${stage.stage} of 5`),
+    `${fmtWh(agg.whPerDay7)}/day, 7-day average`,
+    dim(stage.vibe),
+  ];
+  if (next) {
+    info.push(
+      dim(`${fmtWh(next.minWhPerDay - agg.whPerDay7)}/day of headroom before ${next.name}`)
+    );
+  } else {
+    info.push(dim("the grid operator knows your name"));
+  }
+
+  // Art on the left, stage info vertically centered next to it.
+  const width = Math.max(...HOGS[stage.stage].map((l) => l.length)) + 3;
+  const pad = Math.max(0, Math.floor((art.length - info.length) / 2));
+  const lines = [];
+  for (let i = 0; i < Math.max(art.length, info.length + pad); i++) {
+    const left = HOGS[stage.stage][i] ?? "";
+    const right = info[i - pad] ?? "";
+    lines.push("  " + (art[i] ?? "") + " ".repeat(width - left.length) + right);
+  }
+  return lines;
+}
+
+// Kuriosa: one personalized fact per run, derived from the user's own data
+// where possible. Honest, sourced in the README, never preachy.
+function facts(agg) {
+  const t = agg.totalWh.median;
+  const out = [];
+
+  if (agg.cacheSavedWh >= 0.5) {
+    out.push(
+      `Prompt caching saved you about ${amber(fmtWh(agg.cacheSavedWh))} — cached tokens cost ` +
+        `roughly a tenth of fresh ones. Without it your hog would be ` +
+        `${pct(agg.cacheSavedWh, t)} fatter. (${fmtEq(agg.cacheSavedWh)})`
+    );
+  }
+
+  if (agg.days.length >= 3) {
+    const [day, wh] = agg.days.reduce((a, b) => (b[1] > a[1] ? b : a));
+    out.push(
+      `Your hungriest day was ${amber(day)}: ${fmtWh(wh)}, about ${fmtEq(wh)}. ` +
+        `The hog remembers it fondly.`
+    );
+  }
+
+  if (agg.outputWh > 0 && t > 0) {
+    out.push(
+      `${amber(pct(agg.outputWh, t))} of your energy went into tokens the model ` +
+        `wrote — generating text costs ~8x more per token than reading it.`
+    );
+  }
+
+  if (agg.waterMl >= 500) {
+    out.push(
+      `Cooling your tokens took about ${amber(fmtVol(agg.waterMl))} of water — ` +
+        `${fmtNum(agg.waterMl / 30)} espresso cups the data center drank on your behalf.`
+    );
+  }
+
+  out.push(
+    `Google says a median Gemini prompt uses 0.24 Wh — about ${amber("one second of microwave")}. ` +
+      `Agentic coding runs hotter: it's the only category that loops.`
+  );
+
+  if (agg.gridGCo2PerKwh > 100) {
+    out.push(
+      `The Swedish grid averages ~30 gCO₂e/kWh, ${amber(
+        `${Math.round(agg.gridGCo2PerKwh / 30)}x cleaner`
+      )} than the ${agg.gridGCo2PerKwh} g/kWh you're using. Same tokens, very different smoke. Try --co2 30.`
+    );
+  }
+
+  // Deterministic per day, so repeated runs feel alive but not jittery.
+  const seed = Number(new Date().toISOString().slice(0, 10).replace(/-/g, ""));
+  return out[seed % out.length];
 }
 
 export function render(agg) {
@@ -70,13 +213,15 @@ export function render(agg) {
   const p = (s = "") => lines.push(s);
 
   p();
-  p(bold("🐷 watthog") + dim(" — estimated electricity use of your LLMs"));
+  p(bold("🐷 watthog") + dim(" · estimated electricity use of your LLMs"));
   const since = agg.since ? agg.since.toISOString().slice(0, 10) : "?";
   p(
     dim(
       `${agg.messages.toLocaleString("en-US")} assistant messages since ${since} · sources: ${agg.sources.join(", ") || "none found"}`
     )
   );
+  p();
+  for (const l of hogBlock(agg)) p(l);
   p();
 
   const t = agg.totalWh;
@@ -89,11 +234,7 @@ export function render(agg) {
   );
   p(`  Water   ${fmtVol(agg.waterMl)}   ${dim("data center cooling")}`);
   p();
-
-  const eq = EQUIVALENTS.map(
-    (e) => `${green(fmtNum(t.median / e.wh))} ${e.label}`
-  ).join(dim("  ·  "));
-  p(`  ≈ ${eq}`);
+  p(`  ≈ ${equivalents(t.median)}`);
   p();
 
   if (agg.models.length) {
@@ -125,13 +266,35 @@ export function render(agg) {
     p();
   }
 
+  p(bold("HOG FACT"));
+  p("  " + facts(agg));
+  p();
+
   p(
     dim(
-      "Estimates only. Closed providers don't publish per-model energy; factors are\nderived from open benchmarks (AI Energy Score, EcoLogits) and Google's Gemini\ndisclosure. See README for methodology."
+      "All figures are estimates. The hog is not a scientist. Factors come from\nopen benchmarks (AI Energy Score, EcoLogits) and Google's Gemini disclosure;\nclosed providers don't publish per-model energy. See README for methodology."
     )
   );
   p();
   return lines.join("\n");
+}
+
+// The chosen equivalence first, then up to two smaller units for texture.
+function equivalents(wh) {
+  const chosen = pickEquivalent(wh);
+  const parts = [green(bold(`${fmtNum(chosen.value)} ${chosen.unit}`))];
+  const idx = LADDER.findIndex((e) => e.wh === chosen.wh);
+  for (const eq of [LADDER[idx - 1], LADDER[idx - 2]]) {
+    if (!eq) continue;
+    const v = wh / eq.wh;
+    if (v < 10000) parts.push(green(`${fmtNum(v)} ${eq.label}`));
+  }
+  return parts.join(dim("  ·  "));
+}
+
+function fmtEq(wh) {
+  const { value, unit } = pickEquivalent(wh);
+  return `${fmtNum(value)} ${unit}`;
 }
 
 function table(header, rows) {
@@ -139,7 +302,7 @@ function table(header, rows) {
   const widths = header.map((_, i) =>
     Math.max(...all.map((r) => String(r[i]).length))
   );
-  const fmt = (r, dimRow) =>
+  const fmt = (r) =>
     "  " +
     r
       .map((cell, i) =>
@@ -147,8 +310,7 @@ function table(header, rows) {
           ? String(cell).padEnd(widths[i])
           : String(cell).padStart(widths[i])
       )
-      .join("  ") +
-    (dimRow ? "" : "");
+      .join("  ");
   return (
     dim(fmt(header)) +
     "\n" +

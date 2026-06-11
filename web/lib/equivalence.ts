@@ -28,7 +28,7 @@ export function pickEquivalent(wh: number): { value: number; unit: string } {
   const value = wh / chosen.wh;
   return {
     value,
-    unit: value >= 1 && value < 1.5 ? chosen.singular : chosen.label,
+    unit: value >= 1 && value < 1.05 ? chosen.singular : chosen.label,
   };
 }
 

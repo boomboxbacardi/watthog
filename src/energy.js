@@ -77,10 +77,56 @@ export function waterMl(wh) {
   return wh * WATER_ML_PER_WH;
 }
 
-// Everyday equivalents for making Wh tangible.
-export const EQUIVALENTS = [
-  { label: "phone charges", wh: 12 },
-  { label: "hours of LED light (8W)", wh: 8 },
-  { label: "dishwasher runs", wh: 1000 },
-  { label: "km in an electric car", wh: 150 },
+// The Equivalence Engine: never show a watt-hour without something physical.
+// Picks the largest unit on the ladder where the value lands at >= 1, so the
+// number is always graspable ("9 dishwasher runs", never "0.01 dishwashers").
+// Mirrors web/lib/equivalence.ts.
+export const LADDER = [
+  { label: "seconds of microwave", singular: "second of microwave", wh: 0.3 },
+  { label: "phone charges", singular: "phone charge", wh: 12 },
+  { label: "slices of toast", singular: "slice of toast", wh: 25 },
+  { label: "pots of coffee", singular: "pot of coffee", wh: 100 },
+  { label: "km in an electric car", singular: "km in an electric car", wh: 150 },
+  { label: "hours on a gaming PC", singular: "hour on a gaming PC", wh: 350 },
+  { label: "dishwasher runs", singular: "dishwasher run", wh: 1000 },
+  { label: "hot showers", singular: "hot shower", wh: 2500 },
+  { label: "house-days", singular: "house-day", wh: 25000 },
 ];
+
+export function pickEquivalent(wh) {
+  let chosen = LADDER[0];
+  for (const eq of LADDER) {
+    if (wh / eq.wh >= 1) chosen = eq;
+  }
+  const value = wh / chosen.wh;
+  return {
+    ...chosen,
+    value,
+    unit: value >= 1 && value < 1.05 ? chosen.singular : chosen.label,
+  };
+}
+
+// Hog growth stages, from rolling 7-day Wh/day. Mirrors DESIGN.md.
+export const STAGES = [
+  { stage: 1, name: "Piglet", minWhPerDay: 0, vibe: "tiny, big eyes, one toast crumb" },
+  { stage: 2, name: "Hog", minWhPerDay: 10, vibe: "content, round" },
+  { stage: 3, name: "Chonk", minWhPerDay: 100, vibe: "visibly thriving" },
+  { stage: 4, name: "Unit", minWhPerDay: 400, vibe: "fills the terminal, smug" },
+  { stage: 5, name: "The Substation", minWhPerDay: 1500, vibe: "power lines bend toward it" },
+];
+
+export function stageFor(whPerDay) {
+  let current = STAGES[0];
+  for (const s of STAGES) {
+    if (whPerDay >= s.minWhPerDay) current = s;
+  }
+  return current;
+}
+
+// Energy the cache saved vs. processing those tokens as fresh input.
+export function cacheSavingsWh(model, cacheReadTokens) {
+  const out1k = CLASSES[classify(model)].outWhPer1k;
+  return (
+    (cacheReadTokens / 1000) * out1k * (INPUT_FRACTION - CACHE_READ_FRACTION)
+  );
+}
