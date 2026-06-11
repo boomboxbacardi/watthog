@@ -34,17 +34,17 @@ const LINES: Line[] = [
 
 const TONE: Record<NonNullable<Line["tone"]>, string> = {
   cmd: "text-accent",
-  bold: "font-semibold text-zinc-100",
-  dim: "text-zinc-500",
-  volt: "text-[#f5b82e]",
+  bold: "font-semibold text-term-bold",
+  dim: "text-term-dim",
+  volt: "text-volt",
 };
 
 export function TerminalDemo() {
   const reduce = useReducedMotion();
 
   return (
-    <div className="overflow-hidden rounded-3xl border-2 border-zinc-700 bg-zinc-900 shadow-[0_18px_48px_-20px_rgba(28,25,23,0.45)]">
-      <div className="border-b border-zinc-700/70 px-5 py-2.5 font-mono text-xs text-zinc-500">
+    <div className="overflow-hidden rounded-3xl border-2 border-term-line bg-term-bg shadow-[0_18px_48px_-20px_rgba(28,25,23,0.45)]">
+      <div className="border-b border-term-line px-5 py-2.5 font-mono text-xs text-term-dim">
         ~ watthog
       </div>
       <div className="overflow-x-auto px-5 py-4">
@@ -56,7 +56,7 @@ export function TerminalDemo() {
             viewport={{ once: true, amount: 0 }}
             transition={{ duration: 0.25, delay: i * 0.09 }}
             className={`font-mono text-[12.5px] leading-[1.6] sm:text-[13px] ${
-              l.tone ? TONE[l.tone] : "text-zinc-300"
+              l.tone ? TONE[l.tone] : "text-term-text"
             }`}
           >
             {l.text || " "}

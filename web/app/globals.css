@@ -13,6 +13,14 @@
   --volt: #e09b07;
   --volt-soft: #fdf0d2;
   --outline: #2b2126;
+
+  /* Terminal surface: a warm near-black, fixed across light/dark so the
+     embedded CLI stays on-brand instead of cold zinc. */
+  --term-bg: #1c1714;
+  --term-line: #342c27;
+  --term-dim: #8c8077;
+  --term-text: #d8cfc6;
+  --term-bold: #f7f2ec;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -44,6 +52,11 @@
   --color-pig-dark: var(--pig-dark);
   --color-volt: var(--volt);
   --color-volt-soft: var(--volt-soft);
+  --color-term-bg: var(--term-bg);
+  --color-term-line: var(--term-line);
+  --color-term-dim: var(--term-dim);
+  --color-term-text: var(--term-text);
+  --color-term-bold: var(--term-bold);
   --font-display: var(--font-baloo);
   --font-sans: var(--font-outfit);
   --font-mono: var(--font-jbmono);
