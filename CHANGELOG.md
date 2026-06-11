@@ -1,3 +1,12 @@
+# [0.2.0](https://github.com/boomboxbacardi/watthog/compare/v0.1.0...v0.2.0) (2026-06-11)
+
+
+### Features
+
+* **onboarding:** add connect/doctor commands and a SOURCES overview ([ae4f2e1](https://github.com/boomboxbacardi/watthog/commit/ae4f2e1676b95e914b0b836423acf2ed7bceeba6))
+* **onboarding:** authorize Copilot billing via GitHub device flow ([9a18bc0](https://github.com/boomboxbacardi/watthog/commit/9a18bc0d05389809b4587298176177697f96f3bc))
+* **report:** show source per model and count Copilot's local chat sessions ([6693c7f](https://github.com/boomboxbacardi/watthog/commit/6693c7f6a0ca8a0f542e76bbfa6a55661528f579))
+
 # [0.1.0](https://github.com/boomboxbacardi/watthog/compare/v0.0.4...v0.1.0) (2026-06-11)
 
 
