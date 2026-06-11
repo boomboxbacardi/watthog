@@ -70,7 +70,7 @@ export function render(agg) {
   const p = (s = "") => lines.push(s);
 
   p();
-  p(bold("⚡ llm-energy") + dim(" — estimated electricity use of your LLMs"));
+  p(bold("🐷 watthog") + dim(" — estimated electricity use of your LLMs"));
   const since = agg.since ? agg.since.toISOString().slice(0, 10) : "?";
   p(
     dim(

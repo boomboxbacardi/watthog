@@ -16,12 +16,12 @@ import { DEFAULT_GRID_GCO2_PER_KWH } from "./energy.js";
 
 const SOURCES = [claudeCode, opencode, codex];
 
-const HELP = `llm-energy — estimate the electricity footprint of your LLM usage
+const HELP = `watthog — estimate the electricity footprint of your LLM usage
 
 Scans local logs from AI coding agents (Claude Code, OpenCode, Codex CLI),
 counts tokens per model and converts them to estimated energy, CO2e and water.
 
-Usage: llm-energy [options]
+Usage: watthog [options]
 
 Options:
   --days <n>    Only include the last n days

@@ -1,15 +1,15 @@
-# ⚡ llm-energy
+# 🐷 Watthog
 
 Estimate the **electricity, CO₂e and water footprint** of your LLM usage across
 AI coding agents — computed entirely from logs already on your machine.
 No API keys, no network calls, no data leaves your computer.
 
 ```
-npx llm-energy            # or: llm-energy after npm link / npm i -g
+npx watthog            # or: watthog after npm link / npm i -g
 ```
 
 ```
-⚡ llm-energy — estimated electricity use of your LLMs
+🐷 watthog — estimated electricity use of your LLMs
 12,431 assistant messages since 2025-11-02 · sources: Claude Code, OpenCode
 
 TOTAL ESTIMATE
