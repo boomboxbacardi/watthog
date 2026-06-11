@@ -238,7 +238,7 @@ export function render(agg, { sources } = {}) {
   const t = agg.totalWh;
   p(bold("TOTAL ESTIMATE"));
   p(
-    `  Energy  ${yellow(bold(fmtWh(t.median)))}   ${dim(`range ${fmtWh(t.low)} – ${fmtWh(t.high)}`)}`
+    `  Energy  ${amber(bold(fmtWh(t.median)))}   ${dim(`range ${fmtWh(t.low)} – ${fmtWh(t.high)}`)}`
   );
   p(
     `  CO₂e    ${fmtMass(agg.co2g)}   ${dim(`@ ${agg.gridGCo2PerKwh} gCO₂e/kWh grid`)}`
@@ -250,7 +250,11 @@ export function render(agg, { sources } = {}) {
 
   if (agg.models.length) {
     p(bold("BY MODEL"));
-    const rows = agg.models.map((m) => [
+    // The tail of a long model list is mostly rounding noise; show the hungry
+    // ones in full and fold the rest into a single honest line.
+    const TOP = 12;
+    const shown = agg.models.slice(0, TOP);
+    const rows = shown.map((m) => [
       m.model,
       m.sources.join(", "),
       classLabel(classify(m.model)),
@@ -265,15 +269,38 @@ export function render(agg, { sources } = {}) {
         rows
       )
     );
+    if (agg.models.length > TOP) {
+      const rest = agg.models.slice(TOP);
+      const restWh = rest.reduce((s, m) => s + m.wh, 0);
+      p(
+        dim(
+          `  + ${rest.length} more models  ·  ${fmtWh(restWh)}  ·  ${pct(restWh, t.median)} of total`
+        )
+      );
+      p();
+    }
   }
 
   if (agg.days.length) {
     p(bold("LAST 14 DAYS"));
-    const recent = agg.days.slice(-14);
-    const max = Math.max(...recent.map(([, wh]) => wh));
-    for (const [day, wh] of recent) {
-      const bar = "█".repeat(Math.max(1, Math.round((wh / max) * 36)));
-      p(`  ${dim(day)}  ${cyan(bar)} ${fmtWh(wh)}`);
+    // Walk a continuous 14-day window so the time axis stays honest: quiet
+    // days show as a faint dot instead of being skipped over.
+    const whByDay = new Map(agg.days);
+    const series = [];
+    for (let i = 13; i >= 0; i--) {
+      const day = new Date(Date.now() - i * 86400_000)
+        .toISOString()
+        .slice(0, 10);
+      series.push([day, whByDay.get(day) || 0]);
+    }
+    const max = Math.max(...series.map(([, wh]) => wh), 1);
+    for (const [day, wh] of series) {
+      if (wh > 0) {
+        const bar = "█".repeat(Math.max(1, Math.round((wh / max) * 36)));
+        p(`  ${dim(day)}  ${amber(bar)} ${fmtWh(wh)}`);
+      } else {
+        p(`  ${dim(day)}  ${dim("·")}`);
+      }
     }
     p();
   }
