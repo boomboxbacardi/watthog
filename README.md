@@ -43,7 +43,14 @@ Watthog fixes that. One command, local logs, honest estimates with ranges.
 | Claude Code | `~/.claude/projects/**/*.jsonl` |
 | OpenCode | `~/.local/share/opencode/opencode.db` (and legacy `storage/message/`) |
 | Codex CLI | `~/.codex/sessions/**/rollout-*.jsonl` |
-| Cursor | `…/Cursor/User/globalStorage/state.vscdb` |
+| Cursor | Your own usage export from Cursor's dashboard API¹ (local fallback: `…/Cursor/User/globalStorage/state.vscdb`) |
+
+¹ Cursor stopped storing token counts locally in early 2026, so watthog fetches
+your usage export from cursor.com instead, authenticated with the session token
+Cursor itself keeps on your machine. It talks only to your own Cursor account
+and caches the result for an hour. Auto-mode requests hide the model and are
+estimated as mid-size. When offline or signed out it falls back to the local
+database, which covers usage up to ~Jan 2026.
 
 ## Options
 
