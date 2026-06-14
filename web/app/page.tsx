@@ -10,7 +10,33 @@ import { TerminalDemo } from "@/components/TerminalDemo";
 import { CopyCommand } from "@/components/CopyCommand";
 import { EnergySlider } from "@/components/EnergySlider";
 import { LeaderboardRows } from "@/components/LeaderboardRows";
-import { HOGGERS } from "@/lib/mock";
+import { HOGGERS, type Hogger } from "@/lib/mock";
+import { store } from "@/lib/store";
+import { getGlobalStats } from "@/lib/stats";
+
+export const revalidate = 30;
+
+async function getLanding(): Promise<{
+  hoggers: Hogger[];
+  live: boolean;
+  totalWh: number;
+}> {
+  const [entries, stats] = await Promise.all([store.getAll(), getGlobalStats()]);
+  if (entries.length === 0) {
+    return { hoggers: HOGGERS, live: false, totalWh: 0 };
+  }
+  return {
+    hoggers: entries.map((e) => ({
+      handle: e.handle,
+      kWhWeek: e.kWhWeek,
+      kWhAllTime: e.kWhAllTime,
+      whPerDay: e.whPerDay,
+      models: e.models,
+    })),
+    live: true,
+    totalWh: stats.totalWh,
+  };
+}
 
 const STEPS = [
   {
@@ -30,7 +56,8 @@ const STEPS = [
   },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const { hoggers, live, totalWh } = await getLanding();
   return (
     <>
       {/* Hero: asymmetric split, the CLI command is the primary CTA */}
@@ -64,7 +91,7 @@ export default function Home() {
       </section>
 
       {/* Global trough: live odometer, toast flies into the hog's mouth */}
-      <GlobalTrough />
+      <GlobalTrough initialWh={totalWh} live={live} />
 
       {/* The teaching slider */}
       <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
@@ -111,7 +138,12 @@ export default function Home() {
             </Link>
           </div>
           <div className="mt-8">
-            <LeaderboardRows hoggers={HOGGERS.slice(0, 3)} metric="week" />
+            <LeaderboardRows
+              hoggers={[...hoggers]
+                .sort((a, b) => b.kWhWeek - a.kWhWeek)
+                .slice(0, 3)}
+              metric="week"
+            />
           </div>
         </div>
       </section>

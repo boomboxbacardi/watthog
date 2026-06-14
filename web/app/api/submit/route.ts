@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
   const { handle, kWhWeek, kWhAllTime, whPerDay, models } = body;
 
   if (!handle || !HANDLE_RE.test(handle)) {
-    return err("handle must be 1–32 characters (a–z, 0–9, - _)");
+    return err("handle must be 1-32 characters (a-z, 0-9, - _)");
   }
   if (
     typeof kWhWeek !== "number" || kWhWeek < 0 ||
