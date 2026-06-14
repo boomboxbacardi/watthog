@@ -132,9 +132,9 @@ export async function runSubmit(records, { handle: handleOverride, yes = false, 
 
   console.log(green("done."));
   console.log();
-  console.log(
-    `  ${green("✓")} ${bold("@" + handle)} is on the board.  ${cyan("watthog.ai/trough")}`
-  );
+  console.log(`  ${green("✓")} ${bold("@" + handle)} is on the board.`);
+  console.log(`    Your hog:   ${cyan(`watthog.ai/u/${handle}`)}  ${dim("(share it)")}`);
+  console.log(`    The trough: ${cyan("watthog.ai/trough")}`);
   console.log();
 
   // Remember the chosen handle so future submits don't ask again.
