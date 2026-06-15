@@ -21,7 +21,7 @@ const jbMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://watthog.ai"),
+  metadataBase: new URL("https://watthog.vercel.app"),
   title: "Watthog, the pig that counts your AI's electricity",
   description:
     "One command turns your local AI agent logs into watt-hours, toast slices and dishwasher runs. Nothing leaves your machine.",

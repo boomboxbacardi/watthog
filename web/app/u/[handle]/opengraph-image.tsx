@@ -122,7 +122,7 @@ export default async function Image({ params }: Props) {
         <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
           <div style={{ display: "flex", flexDirection: "column" }}>
             <div style={{ fontSize: 92, fontWeight: 700, color: VOLT, lineHeight: 1 }}>
-              {data ? fmtWh(kWhAll * 1000) : "watthog.ai"}
+              {data ? fmtWh(kWhAll * 1000) : "watthog.vercel.app"}
             </div>
             <div style={{ fontSize: 30, color: INK_MUTED, marginTop: 12 }}>
               {data
@@ -130,7 +130,7 @@ export default async function Image({ params }: Props) {
                 : "estimate your AI's electricity"}
             </div>
           </div>
-          <div style={{ fontSize: 26, color: INK_MUTED }}>watthog.ai</div>
+          <div style={{ fontSize: 26, color: INK_MUTED }}>watthog.vercel.app</div>
         </div>
       </div>
     ),

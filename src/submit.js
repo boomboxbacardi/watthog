@@ -11,7 +11,7 @@ import { ui } from "./report.js";
 
 const { bold, dim, green, amber, cyan } = ui;
 
-const SUBMIT_URL = "https://watthog.ai/api/submit";
+const SUBMIT_URL = "https://watthog.vercel.app/api/submit";
 
 // Top model names from the aggregate, capped so the payload stays small.
 function topModels(agg, max = 5) {
@@ -38,7 +38,7 @@ function printPayload(payload) {
     `  ${dim(k.padEnd(pad))} ${v}`;
 
   console.log();
-  console.log(bold("🐷 Submit to The Trough") + dim("  (watthog.ai/trough)"));
+  console.log(bold("🐷 Submit to The Trough") + dim("  (watthog.vercel.app/trough)"));
   console.log();
   console.log(row("You'll appear as:", bold("@" + payload.handle)));
   console.log();
@@ -116,7 +116,7 @@ export async function runSubmit(records, { handle: handleOverride, yes = false, 
     });
   } catch (err) {
     console.log();
-    console.error(amber("Could not reach watthog.ai — check your connection."));
+    console.error(amber("Could not reach the server. Check your connection."));
     console.error(dim(err.message));
     process.exitCode = 1;
     return;
@@ -133,8 +133,8 @@ export async function runSubmit(records, { handle: handleOverride, yes = false, 
   console.log(green("done."));
   console.log();
   console.log(`  ${green("✓")} ${bold("@" + handle)} is on the board.`);
-  console.log(`    Your hog:   ${cyan(`watthog.ai/u/${handle}`)}  ${dim("(share it)")}`);
-  console.log(`    The trough: ${cyan("watthog.ai/trough")}`);
+  console.log(`    Your hog:   ${cyan(`watthog.vercel.app/u/${handle}`)}  ${dim("(share it)")}`);
+  console.log(`    The trough: ${cyan("watthog.vercel.app/trough")}`);
   console.log();
 
   // Remember the chosen handle so future submits don't ask again.
