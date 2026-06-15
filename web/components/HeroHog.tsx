@@ -13,7 +13,7 @@ import {
   useReducedMotion,
 } from "motion/react";
 import { Hog } from "./Hog";
-import { ToastDoodle, SparkDoodle } from "./Doodles";
+import { ToastDoodle, SparkDoodle, TroughDoodle } from "./Doodles";
 
 export function HeroHog() {
   const ref = useRef<HTMLDivElement>(null);
@@ -84,11 +84,14 @@ export function HeroHog() {
       >
         <Hog stage={3} size={330} blink={blink} className="text-ink" />
       </motion.div>
-      {/* the toast pile, served snout-side */}
-      <div aria-hidden className="absolute bottom-[1%] right-[10%] flex items-end">
-        <ToastDoodle size={30} className="-rotate-6" />
-        <ToastDoodle size={36} className="-ml-3 rotate-6" />
-        <ToastDoodle size={42} className="-ml-4 -rotate-12" />
+      {/* the trough, served snout-side, with toast heaped over the rim */}
+      <div aria-hidden className="absolute bottom-[0%] right-[4%] flex flex-col items-center">
+        <div className="relative flex items-end">
+          <ToastDoodle size={30} className="relative z-10 -mb-2 -rotate-12" />
+          <ToastDoodle size={40} className="relative z-10 -ml-3 -mb-3 rotate-6" />
+          <ToastDoodle size={28} className="relative z-10 -ml-2 -mb-1 rotate-12" />
+        </div>
+        <TroughDoodle size={120} className="-mt-3 text-ink" />
       </div>
     </div>
   );

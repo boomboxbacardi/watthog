@@ -4,6 +4,7 @@ import {
   ChartBarIcon,
   UsersThreeIcon,
 } from "@phosphor-icons/react/dist/ssr";
+import { Hog } from "@/components/Hog";
 import { HeroHog } from "@/components/HeroHog";
 import { GlobalTrough } from "@/components/GlobalTrough";
 import { TerminalDemo } from "@/components/TerminalDemo";
@@ -55,6 +56,15 @@ const STEPS = [
     body: "Opt in with watthog submit. Aggregates only; your prompts never leave home.",
   },
 ];
+
+// Size classes and their measured Wh-per-1k-output-token factors (src/energy.js).
+// The bar widths make the spread physical: frontier eats ~15x a small model.
+const METHOD_CLASSES = [
+  { name: "small", examples: "Haiku, mini, flash", factor: 0.03 },
+  { name: "medium", examples: "Sonnet, GPT-4o, ~70B", factor: 0.19 },
+  { name: "frontier", examples: "Opus, GPT-5, o3", factor: 0.45 },
+];
+const METHOD_MAX = 0.45;
 
 export default async function Home() {
   const { hoggers, live, totalWh } = await getLanding();
@@ -148,6 +158,60 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* Put yourself on the board: a preview of the share card you get back */}
+      <section className="mx-auto max-w-3xl px-4 py-20 text-center sm:px-6">
+        <h2 className="font-display text-3xl font-bold sm:text-4xl">
+          Put yourself on the board
+        </h2>
+        <p className="mx-auto mt-3 max-w-[44ch] text-ink-muted">
+          One opt-in command and you get a share card of your own. Aggregates
+          only, never your prompts or paths.
+        </p>
+
+        <div className="mx-auto mt-10 grid max-w-lg items-center gap-6 rounded-3xl border-2 border-line bg-surface-2/50 p-6 text-left sm:grid-cols-[auto_1fr] sm:p-8">
+          <div className="relative flex justify-center">
+            <div
+              aria-hidden
+              className="absolute left-1/2 top-1/2 h-[120%] w-[120%] -translate-x-1/2 -translate-y-1/2 bg-accent-soft"
+              style={{ borderRadius: "46% 54% 52% 48% / 56% 48% 52% 44%" }}
+            />
+            <Hog stage={4} size={132} className="relative text-ink" />
+          </div>
+          <div>
+            <p className="font-display text-2xl font-bold">@ci_gremlin</p>
+            <p className="mt-0.5 text-ink-muted">
+              Unit · rank <span className="font-mono font-semibold text-accent">#4</span> this week
+            </p>
+            <div className="mt-5 grid grid-cols-3 gap-4">
+              {[
+                ["this week", "6.2 kWh"],
+                ["all-time", "88 kWh"],
+                ["per day", "1.2 kWh"],
+              ].map(([label, value]) => (
+                <div key={label}>
+                  <p className="font-mono text-lg font-semibold">{value}</p>
+                  <p className="text-xs text-ink-muted">{label}</p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 flex flex-wrap gap-1.5">
+              {["opus", "sonnet"].map((m) => (
+                <span
+                  key={m}
+                  className="rounded-full bg-accent-soft px-3 py-0.5 font-mono text-xs text-accent"
+                >
+                  {m}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-10 flex justify-center">
+          <CopyCommand command="npx watthog submit" />
+        </div>
+      </section>
+
       {/* Method */}
       <section id="method" className="mx-auto max-w-3xl px-4 py-20 sm:px-6">
         <h2 className="font-display text-3xl font-bold sm:text-4xl">
@@ -158,24 +222,32 @@ export default async function Home() {
           every model to a size class with a Wh-per-1k-token factor and always
           shows a low-to-high range, never a false-precision point value.
         </p>
-        <div className="mt-8 rounded-3xl border-2 border-line">
-          {[
-            ["small", "Haiku, mini, flash", "0.03 Wh / 1k tokens"],
-            ["medium", "Sonnet, GPT-4o, ~70B", "0.19 Wh / 1k tokens"],
-            ["frontier", "Opus, GPT-5, o3", "0.45 Wh / 1k tokens"],
-          ].map(([cls, examples, factor], i) => (
-            <div
-              key={cls}
-              className={`flex flex-wrap items-baseline gap-x-4 gap-y-1 px-6 py-4 ${
-                i > 0 ? "border-t-2 border-line" : ""
-              }`}
-            >
-              <p className="w-20 font-display text-lg font-bold">{cls}</p>
-              <p className="flex-1 text-sm text-ink-muted">{examples}</p>
-              <p className="font-mono text-sm text-volt">{factor}</p>
+        <div className="mt-10 flex flex-col gap-8">
+          {METHOD_CLASSES.map((c) => (
+            <div key={c.name}>
+              <div className="flex flex-wrap items-baseline justify-between gap-x-4">
+                <p className="font-display text-lg font-bold">
+                  {c.name}{" "}
+                  <span className="font-sans text-sm font-normal text-ink-muted">
+                    {c.examples}
+                  </span>
+                </p>
+                <p className="font-mono text-sm text-volt">
+                  {c.factor.toFixed(2)} Wh / 1k
+                </p>
+              </div>
+              <div
+                className="mt-2.5 h-3 rounded-full bg-volt"
+                style={{ width: `${(c.factor / METHOD_MAX) * 100}%` }}
+              />
             </div>
           ))}
         </div>
+        <p className="mt-6 text-sm text-ink-muted">
+          Wh per 1,000 output tokens. A frontier model eats roughly 15x what a
+          small one does for the same work, which is why the model mix matters
+          more than the token count.
+        </p>
         <p className="mt-8 text-sm leading-relaxed text-ink-muted">
           Factors are anchored in measured benchmarks:{" "}
           <a

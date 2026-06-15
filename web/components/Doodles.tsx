@@ -25,6 +25,34 @@ export function ToastDoodle({
   );
 }
 
+export function TroughDoodle({
+  size = 90,
+  className,
+}: {
+  size?: number;
+  className?: string;
+}) {
+  // A chunky feeding trough, drawn snout-height so the hog can eat from it.
+  // Amber-soft fill ties the trough to energy (the thing it's full of).
+  return (
+    <svg viewBox="0 0 80 56" width={size} height={(size * 56) / 80} className={className} aria-hidden>
+      {/* legs */}
+      <rect x={16} y={40} width={8} height={14} rx={3} fill="var(--outline)" />
+      <rect x={56} y={40} width={8} height={14} rx={3} fill="var(--outline)" />
+      {/* bowl: a trapezoid, wider at the rim */}
+      <path
+        d="M6 20 L74 20 L64 44 Q62 48 56 48 L24 48 Q18 48 16 44 Z"
+        fill="var(--volt-soft)"
+        stroke="var(--outline)"
+        strokeWidth={4}
+        strokeLinejoin="round"
+      />
+      {/* rim highlight */}
+      <path d="M10 20 L70 20" stroke="var(--outline)" strokeWidth={4} strokeLinecap="round" opacity={0.18} />
+    </svg>
+  );
+}
+
 export function SparkDoodle({
   size = 30,
   className,
