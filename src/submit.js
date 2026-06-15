@@ -20,12 +20,15 @@ function topModels(agg, max = 5) {
     .map((m) => m.model);
 }
 
-// Weeks are rolling 7-day windows; "all time" is the full history.
+// Week is the rolling 7-day window (whPerDay7 is the per-day average over the
+// last 7 calendar days); all-time is the full, un-windowed history. Note that
+// agg.totalWh is a {low, median, high} range object, not a scalar — only
+// lifetimeWh and whPerDay7 are raw numbers.
 function buildPayload(agg, handle) {
-  const kWhWeek = (agg.totalWh / 1000);  // totalWh already respects --days; submit always uses full window
+  const weekWh = agg.whPerDay7 * 7;
   return {
     handle,
-    kWhWeek: parseFloat(kWhWeek.toFixed(3)),
+    kWhWeek: parseFloat((weekWh / 1000).toFixed(3)),
     kWhAllTime: parseFloat((agg.lifetimeWh / 1000).toFixed(3)),
     whPerDay: Math.round(agg.whPerDay7),
     models: topModels(agg),
