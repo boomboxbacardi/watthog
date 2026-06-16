@@ -1,3 +1,18 @@
+# [0.5.0](https://github.com/boomboxbacardi/watthog/compare/v0.4.1...v0.5.0) (2026-06-16)
+
+
+### Bug Fixes
+
+* **energy:** provide level and co2 range that cli.js already consumes ([cd81508](https://github.com/boomboxbacardi/watthog/commit/cd81508621a44838737dca4994afba12f17c3f47))
+* **sources:** detect org-managed Copilot billing ([b50610a](https://github.com/boomboxbacardi/watthog/commit/b50610a4cfe747fff1ddf07fc50c0ce3fee9e508))
+
+
+### Features
+
+* **report:** point the report at the Trough leaderboard ([8efe05f](https://github.com/boomboxbacardi/watthog/commit/8efe05f8f0db693266a27044fb0dc995b84d7322))
+* **web:** add coverage + run-cost sections and refresh equivalence ladder ([66ede82](https://github.com/boomboxbacardi/watthog/commit/66ede82dfcb62ea13eeeccc677a5001964594922))
+* **web:** pre-composed share intent and relative rank hook ([1e0ab9c](https://github.com/boomboxbacardi/watthog/commit/1e0ab9c2eba78fa738e58ed79ce6b24af02b504c))
+
 ## [0.4.1](https://github.com/boomboxbacardi/watthog/compare/v0.4.0...v0.4.1) (2026-06-16)
 
 
