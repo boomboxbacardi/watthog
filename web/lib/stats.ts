@@ -50,3 +50,12 @@ export async function getHoggerWithRank(
     total: all.length,
   };
 }
+
+// Share-friendly framing for the long tail: what fraction of the board this
+// hogger out-burns. Rank 1 of 100 tops ~99%; the lightest hog is at 0%. The
+// leaderboard only gives the top few something to brag about — this gives
+// everyone a number. Returns null when the board is too small to compare.
+export function outburnPct(rank: number, total: number): number | null {
+  if (total < 2) return null;
+  return Math.round(((total - rank) / total) * 100);
+}

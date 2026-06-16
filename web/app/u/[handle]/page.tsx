@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Hog } from "@/components/Hog";
 import { ShareButton } from "@/components/ShareButton";
 import { CopyCommand } from "@/components/CopyCommand";
-import { getHoggerWithRank } from "@/lib/stats";
+import { getHoggerWithRank, outburnPct } from "@/lib/stats";
 import { stageFor, fmtEquivalent, fmtWh, type Stage } from "@/lib/equivalence";
 
 export const revalidate = 30;
@@ -70,8 +70,21 @@ export default async function HoggerPage({ params }: Props) {
     );
   }
 
-  const { entry, rankWeek, total } = data;
+  const { entry, rankAllTime, rankWeek, total } = data;
   const stage = stageFor(entry.whPerDay);
+  const outburn = outburnPct(rankAllTime, total);
+
+  // Pre-composed post body so the share is one tap, not a blank box. The number
+  // and the rank do the talking; the URL (this page, with its OG card) is added
+  // by the share button.
+  const shareText =
+    outburn != null
+      ? `I'm a ${stage.name} on @watthog's Trough — hungrier than ${outburn}% of hoggers, ${entry.kWhAllTime.toFixed(
+          1
+        )} kWh of AI electricity all-time 🐷⚡`
+      : `I'm a ${stage.name} on @watthog's Trough — ${entry.kWhAllTime.toFixed(
+          1
+        )} kWh of AI electricity all-time 🐷⚡`;
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 sm:py-16">
@@ -123,8 +136,15 @@ export default async function HoggerPage({ params }: Props) {
             .
           </p>
 
+          {outburn != null && (
+            <p className="mt-2 text-ink-muted">
+              Hungrier than{" "}
+              <span className="font-semibold text-ink">{outburn}% of the trough</span>.
+            </p>
+          )}
+
           <div className="mt-8 flex flex-wrap items-center gap-4">
-            <ShareButton label="Share my hog" />
+            <ShareButton label="Share my hog" text={shareText} />
             <Link
               href="/trough"
               className="font-semibold text-accent underline-offset-4 hover:underline"
