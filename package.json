@@ -6,6 +6,11 @@
   "bin": {
     "watthog": "./src/cli.js"
   },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
   "engines": {
     "node": ">=22"
   },

@@ -18,6 +18,7 @@ import { runConnect, runDoctor } from "./setup.js";
 import { runSubmit } from "./submit.js";
 import { runInteractive } from "./interactive.js";
 import { startLoader } from "./loader.js";
+import { checkForUpdate, runUpgrade, updateNotice } from "./update.js";
 import { DEFAULT_GRID_GCO2_PER_KWH, stageFor } from "./energy.js";
 import { loadConfig, saveConfig } from "./config.js";
 
@@ -37,6 +38,7 @@ Commands:
   submit            Upload your aggregates to The Trough leaderboard (opt-in)
   connect copilot   Connect GitHub Copilot's premium-request billing (guided)
   doctor            Show which sources are detected and what they need
+  upgrade           Update watthog to the latest published version
 
 Options:
   --days <n>      Only include the last n days
@@ -82,6 +84,10 @@ async function main() {
     await runDoctor(SOURCES);
     return;
   }
+  if (command === "upgrade" || command === "update") {
+    await runUpgrade();
+    return;
+  }
   if (command === "submit") {
     const { records } = await collectRecords();
     if (!records.length) {
@@ -105,6 +111,13 @@ async function main() {
     console.error("--days and --co2 must be positive numbers");
     process.exit(1);
   }
+
+  // Kick the version check off now so it overlaps the scan (which runs the
+  // loader for ≥2s) and the registry round-trip is effectively free. Skipped
+  // for --json, which stays a pure data dump. Never rejects.
+  const updatePromise = args.json
+    ? null
+    : checkForUpdate().catch(() => null);
 
   const { records, active } = await collectRecords();
 
@@ -168,10 +181,14 @@ async function main() {
 
   console.log(render(agg, { sources: sourceSummary, full: args.all, levelUp }));
 
+  const update = await updatePromise;
+  const newer = update?.hasUpdate ? update : null;
+
   if (process.stdin.isTTY && process.stdout.isTTY) {
     await runInteractive({
       records,
       sourceSummary,
+      update: newer,
       state: {
         days,
         gridGCo2PerKwh,
@@ -179,6 +196,8 @@ async function main() {
         source: null,
       },
     });
+  } else if (newer) {
+    console.log(updateNotice(newer, { interactive: false }));
   }
 }
 
