@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { getHoggerWithRank } from "@/lib/stats";
+import { getHoggerWithRank, outburnPct } from "@/lib/stats";
 import { stageFor, fmtEquivalent, fmtWh } from "@/lib/equivalence";
 
 export const alt = "A hogger's Watthog trough card";
@@ -80,6 +80,7 @@ export default async function Image({ params }: Props) {
   const kWhAll = data ? data.entry.kWhAllTime : 0;
   const rankWeek = data?.rankWeek ?? null;
   const total = data?.total ?? 0;
+  const outburn = data ? outburnPct(data.rankAllTime, data.total) : null;
 
   return new ImageResponse(
     (
@@ -126,7 +127,9 @@ export default async function Image({ params }: Props) {
             </div>
             <div style={{ fontSize: 30, color: INK_MUTED, marginTop: 12 }}>
               {data
-                ? `all-time · ≈ ${fmtEquivalent(kWhAll * 1000)}`
+                ? outburn != null
+                  ? `all-time · hungrier than ${outburn}% of the trough`
+                  : `all-time · ≈ ${fmtEquivalent(kWhAll * 1000)}`
                 : "estimate your AI's electricity"}
             </div>
           </div>

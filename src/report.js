@@ -252,7 +252,29 @@ function facts(agg) {
   return out[seed % out.length];
 }
 
-export function render(agg, { sources, full, levelUp } = {}) {
+// The loop-closer: the report is what people screenshot, so it has to point
+// at the leaderboard. Once they've submitted we know their handle and hand
+// them their own card to share; before that, we nudge the one command.
+function shareBlock(handle) {
+  const base = "watthog.vercel.app";
+  const lines = [
+    bold("THE TROUGH") + dim("  ·  where the hungriest hogs are ranked"),
+  ];
+  if (handle) {
+    lines.push(
+      `  ${green("@" + handle)} is on the board → ${cyan(`${base}/u/${handle}`)}  ${dim("(share your hog)")}`
+    );
+    lines.push(dim("  re-run `watthog submit` to update your standing"));
+  } else {
+    lines.push(
+      `  see how your hog ranks against the rest → run ${cyan("watthog submit")}`
+    );
+    lines.push(dim("  opt-in, aggregates only — nothing else leaves your machine"));
+  }
+  return lines;
+}
+
+export function render(agg, { sources, full, levelUp, shareHandle } = {}) {
   const lines = [];
   const p = (s = "") => lines.push(s);
   // Deterministic per day, so repeated runs feel alive but not jittery.
@@ -382,6 +404,9 @@ export function render(agg, { sources, full, levelUp } = {}) {
 
   p(bold("HOG FACT"));
   p("  " + facts(agg));
+  p();
+
+  for (const l of shareBlock(shareHandle)) p(l);
   p();
 
   p(

@@ -172,14 +172,22 @@ async function main() {
 
   // The level is cumulative and persisted; if it climbed since the last run,
   // flash a LEVEL UP. First-ever run just records a baseline, no flash.
-  const prevLevel = loadConfig().hogLevel;
+  const cfg = loadConfig();
+  const prevLevel = cfg.hogLevel;
   const levelUp =
     prevLevel != null && agg.level.level > prevLevel
       ? { from: prevLevel, to: agg.level.level }
       : null;
   if (prevLevel !== agg.level.level) saveConfig(undefined, { hogLevel: agg.level.level });
 
-  console.log(render(agg, { sources: sourceSummary, full: args.all, levelUp }));
+  console.log(
+    render(agg, {
+      sources: sourceSummary,
+      full: args.all,
+      levelUp,
+      shareHandle: cfg.submitHandle,
+    })
+  );
 
   const update = await updatePromise;
   const newer = update?.hasUpdate ? update : null;
