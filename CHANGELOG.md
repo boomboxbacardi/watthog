@@ -1,3 +1,10 @@
+# [0.4.0](https://github.com/boomboxbacardi/watthog/compare/v0.3.0...v0.4.0) (2026-06-16)
+
+
+### Features
+
+* **cli:** wire up interactive prompt, loader, and update check ([eff4773](https://github.com/boomboxbacardi/watthog/commit/eff4773cfc514c2e59f91ffc005cdf981b432c06))
+
 # [0.3.0](https://github.com/boomboxbacardi/watthog/compare/v0.2.0...v0.3.0) (2026-06-16)
 
 
