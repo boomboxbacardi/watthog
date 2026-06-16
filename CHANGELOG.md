@@ -1,3 +1,20 @@
+# [0.3.0](https://github.com/boomboxbacardi/watthog/compare/v0.2.0...v0.3.0) (2026-06-16)
+
+
+### Bug Fixes
+
+* **cli:** compute submit week kWh from whPerDay7, not the range object ([b56140e](https://github.com/boomboxbacardi/watthog/commit/b56140efa1b0c6dede24da867273e7159094fe20))
+* point submit and share URLs at watthog.vercel.app ([575c5d9](https://github.com/boomboxbacardi/watthog/commit/575c5d97a761176f9034f03a1582ad6ef56d06cd))
+
+
+### Features
+
+* **cli:** add submit command for opt-in leaderboard upload ([52f1d58](https://github.com/boomboxbacardi/watthog/commit/52f1d585f74846f0bf07e2ec053afa35914d9e2c))
+* **cli:** print the shareable hog link after submit ([9743385](https://github.com/boomboxbacardi/watthog/commit/9743385f87e93781dcf4c1b8a21a56b10392f2d3))
+* **report:** unify energy color on amber, honest 14-day axis, fold long model list ([9b93d93](https://github.com/boomboxbacardi/watthog/commit/9b93d93e1a9fca79b8c70d90cd00b833cf95bde8))
+* **web:** back the leaderboard with Redis and add shareable hog pages ([b44944f](https://github.com/boomboxbacardi/watthog/commit/b44944f7a9088d438602c8455b73059dc1e8551a))
+* **web:** give the hero a trough scene and turn Method into a chart ([503f974](https://github.com/boomboxbacardi/watthog/commit/503f97496c61748515d585f7344fcceecdd733cd))
+
 # [0.2.0](https://github.com/boomboxbacardi/watthog/compare/v0.1.0...v0.2.0) (2026-06-11)
 
 
