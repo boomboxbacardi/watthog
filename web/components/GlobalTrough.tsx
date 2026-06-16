@@ -50,21 +50,52 @@ function fmtKwh(wh: number): string {
   });
 }
 
-export function GlobalTrough() {
+export function GlobalTrough({
+  initialWh = 0,
+  live = false,
+}: {
+  initialWh?: number;
+  live?: boolean;
+}) {
   const reduce = useReducedMotion();
-  const [wh, setWh] = useState(GLOBAL_KWH * 1000);
+  // Before any hogger has submitted, show the sample figure so the strip never
+  // reads a lonely "0.0". Once real submissions exist, the seed is the truth.
+  const seed = live && initialWh > 0 ? initialWh : GLOBAL_KWH * 1000;
+  const [wh, setWh] = useState(seed);
   const [tick, setTick] = useState(0);
   const [eating, setEating] = useState(false);
 
-  // Simulated live feed until the submit API lands; cadence matches what a
-  // real global counter would feel like.
+  // Live mode: poll the real total and roll the odometer toward it. Sample
+  // mode (pre-launch): a gentle simulated drift so the strip still feels alive.
   useEffect(() => {
-    const id = setInterval(() => {
-      setWh((w) => w + 40 + Math.random() * 260);
-      setTick((t) => t + 1);
-    }, 4200);
-    return () => clearInterval(id);
-  }, []);
+    if (!live) {
+      const id = setInterval(() => {
+        setWh((w) => w + 40 + Math.random() * 260);
+        setTick((t) => t + 1);
+      }, 4200);
+      return () => clearInterval(id);
+    }
+    let stop = false;
+    async function poll() {
+      try {
+        const res = await fetch("/api/global", { cache: "no-store" });
+        if (!res.ok) return;
+        const { totalWh } = await res.json();
+        if (stop || typeof totalWh !== "number") return;
+        setWh((prev) => {
+          if (totalWh > prev) setTick((t) => t + 1); // a hog ate: feed animation
+          return totalWh > 0 ? totalWh : prev;
+        });
+      } catch {
+        // offline or transient; keep the last good number
+      }
+    }
+    const id = setInterval(poll, 30000);
+    return () => {
+      stop = true;
+      clearInterval(id);
+    };
+  }, [live]);
 
   useEffect(() => {
     if (tick === 0 || reduce) return;
@@ -117,7 +148,8 @@ export function GlobalTrough() {
           </span>
         </div>
         <p className="mt-1 text-ink-muted">
-          ≈ {fmtEquivalent(wh)} (sample figure until launch)
+          ≈ {fmtEquivalent(wh)}
+          {live ? "" : " (sample figure until launch)"}
         </p>
       </div>
     </section>

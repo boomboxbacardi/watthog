@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { LeaderboardRows } from "./LeaderboardRows";
-import { HOGGERS } from "@/lib/mock";
+import { type Hogger } from "@/lib/mock";
 
-export function TroughBoard() {
+export function TroughBoard({ hoggers }: { hoggers: Hogger[] }) {
   const [metric, setMetric] = useState<"week" | "all">("week");
 
   return (
@@ -37,7 +37,7 @@ export function TroughBoard() {
       </div>
 
       <div className="mt-6">
-        <LeaderboardRows hoggers={HOGGERS} metric={metric} />
+        <LeaderboardRows hoggers={hoggers} metric={metric} />
       </div>
     </div>
   );
