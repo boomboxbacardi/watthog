@@ -1,3 +1,10 @@
+## [0.4.1](https://github.com/boomboxbacardi/watthog/compare/v0.4.0...v0.4.1) (2026-06-16)
+
+
+### Bug Fixes
+
+* **energy:** provide level and co2 range that cli.js already consumes ([e58273e](https://github.com/boomboxbacardi/watthog/commit/e58273e43a524b0ec289bfc2efa73eafbaa53f19))
+
 # [0.4.0](https://github.com/boomboxbacardi/watthog/compare/v0.3.0...v0.4.0) (2026-06-16)
 
 
