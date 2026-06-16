@@ -57,6 +57,44 @@ const STEPS = [
   },
 ];
 
+// What a chunk of AI work costs, in units you can actually picture. Illustrative,
+// grounded in the equivalence anchors in src/energy.js — the real mix decides it.
+const RUN_COSTS = [
+  {
+    energy: "~0.1 kWh",
+    work: "A heavy afternoon of agentic coding",
+    feel: "a few slices of toast",
+    emoji: "🍞",
+  },
+  {
+    energy: "~1 kWh",
+    work: "A big refactor across a whole repo",
+    feel: "an hour on a gaming PC, or a load of laundry",
+    emoji: "🧺",
+  },
+  {
+    energy: "~10 kWh",
+    work: "A month of daily Claude Code",
+    feel: "4 hot showers, or 100 km in a petrol car",
+    emoji: "🚗",
+  },
+  {
+    energy: "~40 kWh",
+    work: "A power user's whole quarter",
+    feel: "a tank of espresso, and ~280 tree-days of CO₂ to reabsorb",
+    emoji: "🌳",
+  },
+];
+
+// The agents Watthog reads, straight off your disk (src/sources/*).
+const SOURCES = [
+  { name: "Claude Code", reads: "~/.claude/projects" },
+  { name: "OpenCode", reads: "opencode.db" },
+  { name: "Codex CLI", reads: "~/.codex/sessions" },
+  { name: "Cursor", reads: "your usage export" },
+  { name: "GitHub Copilot", reads: "chat sessions + billing" },
+];
+
 // Size classes and their measured Wh-per-1k-output-token factors (src/energy.js).
 // The bar widths make the spread physical: frontier eats ~15x a small model.
 const METHOD_CLASSES = [
@@ -103,15 +141,67 @@ export default async function Home() {
       {/* Global trough: live odometer, toast flies into the hog's mouth */}
       <GlobalTrough initialWh={totalWh} live={live} />
 
+      {/* Coverage strip: every agent the pig reads, straight off your disk */}
+      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+        <p className="text-center text-sm font-semibold uppercase tracking-wide text-ink-muted">
+          Reads every agent you already use
+        </p>
+        <div className="mt-8 flex flex-wrap items-stretch justify-center gap-3">
+          {SOURCES.map((s) => (
+            <div
+              key={s.name}
+              className="flex min-w-[9rem] flex-1 flex-col gap-1 rounded-2xl border-2 border-line bg-surface-2/50 px-5 py-4"
+            >
+              <span className="font-display text-base font-bold">{s.name}</span>
+              <span className="font-mono text-xs text-ink-muted">{s.reads}</span>
+            </div>
+          ))}
+        </div>
+        <p className="mt-6 text-center text-sm text-ink-muted">
+          All read locally. Nothing leaves your machine.
+        </p>
+      </section>
+
       {/* The teaching slider */}
       <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
         <EnergySlider />
       </section>
 
+      {/* Relatable scale: what a chunk of AI work actually costs */}
+      <section className="mx-auto max-w-4xl px-4 pb-20 sm:px-6">
+        <h2 className="font-display text-3xl font-bold sm:text-4xl">
+          What a run actually costs
+        </h2>
+        <p className="mt-3 max-w-[52ch] text-ink-muted">
+          A kilowatt-hour is an abstraction. A hot shower is not. Watthog picks
+          the comparison that fits your number — toast for the light days, petrol
+          and trees for the months you&apos;d rather not think about.
+        </p>
+        <div className="mt-10 flex flex-col gap-3">
+          {RUN_COSTS.map((r) => (
+            <div
+              key={r.energy}
+              className="flex items-center gap-4 rounded-2xl border-2 border-line bg-surface-2/50 px-5 py-4 sm:gap-6 sm:px-7"
+            >
+              <span className="shrink-0 font-mono text-lg font-semibold text-volt sm:w-24">
+                {r.energy}
+              </span>
+              <span className="flex-1">
+                <span className="block font-display font-bold">{r.work}</span>
+                <span className="text-sm text-ink-muted">≈ {r.feel}</span>
+              </span>
+              <span aria-hidden className="text-2xl sm:text-3xl">
+                {r.emoji}
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* How it works: the real CLI output next to the three steps */}
       <section className="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
         <h2 className="font-display text-3xl font-bold sm:text-4xl">
-          Run it. Read it. Brag about it.
+          Run it. Read it. Feed it less.
         </h2>
         <div className="mt-10 grid items-center gap-10 lg:grid-cols-[1.15fr_1fr]">
           <TerminalDemo />

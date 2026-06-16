@@ -2,6 +2,9 @@
 // Picks the largest unit on the ladder where the value lands at >= 1, so the
 // number is always graspable ("9 dishwasher runs", never "0.01 dishwashers").
 
+// TODO(web): the CLI also ships a CO₂ equivalence ladder (CO2_LADDER in
+// src/energy.js) — petrol-km, bananas, beef burgers. Mirror it here if/when the
+// site surfaces emissions equivalents.
 export type Equivalent = {
   label: string;
   singular: string;
@@ -10,12 +13,15 @@ export type Equivalent = {
 
 export const LADDER: Equivalent[] = [
   { label: "seconds of microwave", singular: "second of microwave", wh: 0.3 },
-  { label: "slices of toast", singular: "slice of toast", wh: 25 },
+  { label: "LED bulb-hours", singular: "LED bulb-hour", wh: 10 },
   { label: "phone charges", singular: "phone charge", wh: 12 },
+  { label: "e-bike km", singular: "km on an e-bike", wh: 15 },
+  { label: "slices of toast", singular: "slice of toast", wh: 25 },
+  { label: "laptop-hours", singular: "laptop-hour", wh: 50 },
   { label: "pots of coffee", singular: "pot of coffee", wh: 100 },
+  { label: "km in an electric car", singular: "km in an electric car", wh: 150 },
   { label: "hours on a gaming PC", singular: "hour on a gaming PC", wh: 350 },
   { label: "dishwasher runs", singular: "dishwasher run", wh: 1000 },
-  { label: "km in an electric car", singular: "km in an electric car", wh: 150 },
   { label: "hot showers", singular: "hot shower", wh: 2500 },
   { label: "house-days", singular: "house-day", wh: 25000 },
 ].sort((a, b) => a.wh - b.wh);
